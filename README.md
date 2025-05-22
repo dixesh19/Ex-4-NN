@@ -116,58 +116,91 @@ Normalize our dataset.
 
 <H3>Program:</H3> 
 
-```
+### Include packages and builtin classes
+```PYTHON
 import pandas as pd
+import sklearn
 from sklearn import preprocessing
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report, confusion_matrix
+```
 
-# Load and name columns
-url = '/content/IRIS.csv'
-names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'species']
-df = pd.read_csv(url, names=names,header=0)
-print("df.head()\n ", df.head())
-# Split features and labels
-X = df.drop('species', axis=1)
-y = df['species']
-# Encode categorical target
-le = preprocessing.LabelEncoder()
-yenc = le.fit_transform(y)
-# Train/test split using encoded labels
-X_train, X_test, y_train, y_test = train_test_split(X, yenc, test_size=0.20, random_state=42)
+### Read the csv file to be considered for Multi-classification
+```PYTHON
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
+columns = ['SepalLength', 'SepalWidth', 'PetalLength', 'PetalWidth', 'Species']
+df = pd.read_csv(url, names=columns)
+```
 
-# Feature scaling
+## Seperate the input features and target from the dataset
+```PYTHON
+X = df.iloc[:, 0:4]
+y = df.iloc[:, 4]
+```
+### Transform the categorial into numerical values
+```PYTHON
+# Initialize encoder
+le = LabelEncoder()
+
+# Fit and transform the target column
+y_encoded = le.fit_transform(y)
+
+# Optional: To see the mapping
+print(dict(zip(le.classes_, le.transform(le.classes_))))
+```
+
+### Split the data  for training  and testing
+```PYTHON
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+```
+
+### Normalize the input features
+```PYTHON
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
+```
 
-# Train MLP model
-mlp = MLPClassifier(hidden_layer_sizes=(10,10,10), max_iter=1000)
-mlp.fit(X_train, y_train)
+### Define the MLP classifier
+```PYTHON
+#Train the classifier 
+model = MLPClassifier(hidden_layer_sizes=(12, 13, 14), activation='relu', solver='adam', max_iter=2500)
+model.fit(X_train, y_train)
+```
 
-# Predict and evaluate
-predictions = mlp.predict(X_test)
-print(predictions)
-print("confusion_matrix: \n",confusion_matrix(y_test, predictions))
-print("classification_report: \n", classification_report(y_test, predictions))
+### Evaluation of algorithm performance in classifying.
+```PYTHON
+predictions = model.predict(X_test)
+print(confusion_matrix(y_test, predictions))
+print(classification_report(y_test, predictions))
+```
+### Train MLP classifier
+```python
+clf = MLPClassifier(hidden_layer_sizes=(12, 13, 14), activation='relu', solver='adam', max_iter=2500)
+clf.fit(X_train, y_train)
+```
 
+### Predictions
+```python
+y_pred = clf.predict(X_test)
+```
 
+### Confusion matrix and report
+```python
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred, target_names=le.classes_))
 ```
 
 <H3>Output:</H3>
 
-**df.head()**
-![alt text](image1.png)
+![image](https://github.com/user-attachments/assets/b5ecec30-7bc3-401e-a617-14abc996102b)
+![image](https://github.com/user-attachments/assets/3e98e38a-a9f5-4869-9a59-904d0b347067)
+![image](https://github.com/user-attachments/assets/c94ce214-f663-4d81-bc87-03ebd813396a)
+![image](https://github.com/user-attachments/assets/ecea5cde-6140-49c0-a6c1-2b4a7678becd)
 
-**confusion_matrix**
-
-![alt text](image2.png)
-
-**classification_report**
-
-![alt text](image3.png)
 
 <H3>Result:</H3>
 Thus, MLP is implemented for multi-classification using python.
